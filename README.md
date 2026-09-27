@@ -1,4 +1,5 @@
 # Fishstick
+[![CI](https://github.com/intensed-dev/fishstick/actions/workflows/ci.yml/badge.svg)](https://github.com/intensed-dev/fishstick/actions/workflows/ci.yml)
 
 A lightweight tool for finding security vulnerabilities and bugs in code repositories.
 
