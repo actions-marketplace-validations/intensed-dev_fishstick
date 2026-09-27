@@ -1,6 +1,9 @@
 name: Fishstick Security Scanner
 description: Scan repositories for security vulnerabilities, leaked secrets, and common bugs
 author: intensed-dev
+branding:
+  icon: shield
+  color: purple
 
 inputs:
   fail-on:
