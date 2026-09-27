@@ -56,6 +56,19 @@ node dist/cli.js scan . --fail-on high
 - Insecure randomness
 - Client-side cookie assignment
 
+### Java / Minecraft / Fabric
+- `Runtime.exec()` and `ProcessBuilder`
+- Java native deserialization
+- Dynamic class loading
+- SQL injection patterns
+- Potentially unsafe TLS verification
+- Credentials written to logs
+- Fabric command arguments reaching sensitive execution
+- Player/chat text reaching command execution
+- Unvalidated Fabric network packet data
+- Sensitive data in mod logs
+- Potentially unprotected server commands
+
 ### Python
 - `eval()` and `exec()`
 - Unsafe pickle deserialization
