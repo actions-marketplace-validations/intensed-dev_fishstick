@@ -34,12 +34,39 @@ node dist/cli.js scan . --fail-on high
 
 ## Current checks
 
-- GitHub token patterns
-- AWS access key patterns
-- Private key headers
-- JavaScript/TypeScript `eval()`
-- JavaScript/TypeScript `innerHTML =`
-- JavaScript/TypeScript shell execution
+### Secrets
+- GitHub, AWS, Slack and npm token patterns
+- Private keys
+- JWTs
+- Database connection strings with credentials
+- Generic API keys and access tokens
+- Hardcoded passwords
+
+### JavaScript / TypeScript
+- `eval()` and `new Function()`
+- `innerHTML`, `insertAdjacentHTML()` and `document.write()`
+- `dangerouslySetInnerHTML`
+- Shell execution and `shell: true`
+- Potential SQL injection
+- Disabled TLS verification
+- Prototype pollution
+- Dynamic timer code
+- Potential open redirects
+- Plain HTTP URLs
+- Insecure randomness
+- Client-side cookie assignment
+
+### Python
+- `eval()` and `exec()`
+- Unsafe pickle deserialization
+- Unsafe YAML loading
+- Shell execution and `shell=True`
+- Disabled TLS verification
+- Potential SQL injection
+- Security-sensitive assertions
+- Insecure temporary files
+
+Findings are reported as GitHub Actions warnings by default. The action does not fail just because vulnerabilities were found. Use `fail-on` explicitly when you want security findings to fail a workflow.
 
 ## GitHub Action
 
