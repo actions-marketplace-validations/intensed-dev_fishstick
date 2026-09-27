@@ -1,0 +1,17 @@
+{
+  "name": "fishstick",
+  "version": "0.1.0",
+  "description": "A lightweight tool for finding security vulnerabilities and bugs in code repositories.",
+  "type": "module",
+  "bin": { "fishstick": "dist/cli.js" },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "test": "npm run build && node --test test/*.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}
