@@ -37,7 +37,7 @@ try {
 
   if (process.env.GITHUB_ACTIONS === "true" && !json) {
     for (const finding of findings) {
-      const level = finding.severity === "critical" || finding.severity === "high" ? "error" : "warning";
+      const level = "warning";
       console.log(`::${level} file=${finding.file},line=${finding.line},title=Fishstick ${finding.severity}: ${finding.ruleId}::${finding.message}`);
     }
   }
