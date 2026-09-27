@@ -1,157 +1,52 @@
 import type { Finding, Rule } from "../types.js";
 
+const extensions = [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"];
+
 const rules: Rule[] = [
-  {
-    id: "JS-EVAL-001",
-    title: "Dynamic code execution",
-    severity: "high",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\beval\s*\(/g, {
-        ruleId: "JS-EVAL-001",
-        severity: "high",
-        title: "Dynamic code execution",
-        message: "eval() executes a string as JavaScript and can turn untrusted input into code execution.",
-        suggestion: "Avoid eval(). Prefer explicit parsing or data structures."
-      });
-    }
-  },
-  {
-    id: "JS-INNERHTML-001",
-    title: "Potential unsafe HTML injection",
-    severity: "medium",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\.innerHTML\s*=/g, {
-        ruleId: "JS-INNERHTML-001",
-        severity: "medium",
-        title: "Potential unsafe HTML injection",
-        message: "Assigning to innerHTML can introduce XSS when the value contains untrusted data.",
-        suggestion: "Prefer textContent or sanitize untrusted HTML before inserting it."
-      });
-    }
-  },
-  {
-    id: "JS-EXEC-001",
-    title: "Shell command execution",
-    severity: "high",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\bexec(?:Sync)?\s*\(/g, {
-        ruleId: "JS-EXEC-001",
-        severity: "high",
-        title: "Shell command execution",
-        message: "Shell execution can become command injection when command strings contain untrusted input.",
-        suggestion: "Prefer spawn with an argument array and validate all external input."
-      });
-    }
-  },
-  {
-    id: "JS-CHILD-SHELL-001",
-    title: "Shell mode enabled for child process",
-    severity: "high",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\bshell\s*:\s*true\b/g, {
-        ruleId: "JS-CHILD-SHELL-001",
-        severity: "high",
-        title: "Shell mode enabled for child process",
-        message: "Enabling shell mode increases command-injection risk when arguments contain untrusted input.",
-        suggestion: "Avoid shell: true unless it is required and all input is strictly controlled."
-      });
-    }
-  },
-  {
-    id: "JS-DANGEROUS-HTML-001",
-    title: "Potential unsafe React HTML injection",
-    severity: "medium",
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
-    scan({ file, content }) {
-      return find(content, file, /dangerouslySetInnerHTML\s*=\s*\{/g, {
-        ruleId: "JS-DANGEROUS-HTML-001",
-        severity: "medium",
-        title: "Potential unsafe React HTML injection",
-        message: "dangerouslySetInnerHTML bypasses React's normal HTML escaping.",
-        suggestion: "Prefer normal JSX text or sanitize HTML with a trusted sanitizer."
-      });
-    }
-  },
-  {
-    id: "JS-SQL-CONCAT-001",
-    title: "Potential SQL injection",
-    severity: "high",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\b(?:SELECT|INSERT|UPDATE|DELETE)\b[^\n;]*\+\s*[A-Za-z_$][\w$]*/gi, {
-        ruleId: "JS-SQL-CONCAT-001",
-        severity: "high",
-        title: "Potential SQL injection",
-        message: "SQL text appears to be constructed by concatenating a JavaScript value.",
-        suggestion: "Use parameterized queries or prepared statements."
-      });
-    }
-  },
-  {
-    id: "JS-INSECURE-RANDOM-001",
-    title: "Insecure randomness",
-    severity: "low",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\bMath\.random\s*\(/g, {
-        ruleId: "JS-INSECURE-RANDOM-001",
-        severity: "low",
-        title: "Insecure randomness",
-        message: "Math.random() is not suitable for security-sensitive tokens or secrets.",
-        suggestion: "Use crypto.randomUUID() or cryptographically secure random bytes for security-sensitive values."
-      });
-    }
-  },
-  {
-    id: "JS-TLS-001",
-    title: "TLS certificate verification disabled",
-    severity: "high",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /\brejectUnauthorized\s*:\s*false\b/g, {
-        ruleId: "JS-TLS-001",
-        severity: "high",
-        title: "TLS certificate verification disabled",
-        message: "Disabling TLS certificate verification can allow man-in-the-middle attacks.",
-        suggestion: "Keep certificate verification enabled in production."
-      });
-    }
-  },
-  {
-    id: "JS-PROTOTYPE-001",
-    title: "Potential prototype pollution",
-    severity: "medium",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"],
-    scan({ file, content }) {
-      return find(content, file, /(?:\[\s*['"]__proto__['"]\s*\]|\.\s*__proto__)\s*=/g, {
-        ruleId: "JS-PROTOTYPE-001",
-        severity: "medium",
-        title: "Potential prototype pollution",
-        message: "Directly assigning to __proto__ can modify an object's prototype.",
-        suggestion: "Avoid __proto__ assignments and use safe object construction patterns."
-      });
-    }
-  },
-  {
-    id: "JS-HARDCODED-PASSWORD-001",
-    title: "Possible hardcoded password",
-    severity: "medium",
-    extensions: [".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".json"],
-    scan({ file, content }) {
-      return find(content, file, /\b(?:password|passwd|pwd)\s*[:=]\s*['"][^'"]{6,}['"]/gi, {
-        ruleId: "JS-HARDCODED-PASSWORD-001",
-        severity: "medium",
-        title: "Possible hardcoded password",
-        message: "A password-like value appears to be hardcoded in source.",
-        suggestion: "Load credentials from environment variables or a secret manager."
-      });
-    }
-  }
+  rule("JS-EVAL-001", "Dynamic code execution", "high", /\beval\s*\(/g, "eval() executes strings as JavaScript.", "Avoid eval()."),
+  rule("JS-FUNCTION-001", "Dynamic Function constructor", "high", /\bnew\s+Function\s*\(/g, "The Function constructor creates executable code from strings.", "Avoid dynamic code generation."),
+  rule("JS-INNERHTML-001", "Potential unsafe HTML injection", "medium", /\.innerHTML\s*=/g, "innerHTML can introduce XSS when the value contains untrusted data.", "Prefer textContent or sanitize untrusted HTML."),
+  rule("JS-INSERTADJ-001", "Potential unsafe DOM injection", "medium", /\.insertAdjacentHTML\s*\(/g, "insertAdjacentHTML parses a string as HTML.", "Prefer DOM APIs or sanitize untrusted HTML."),
+  rule("JS-DOCUMENT-WRITE-001", "Unsafe document.write", "medium", /\bdocument\.write(?:ln)?\s*\(/g, "document.write injects HTML into the document.", "Use DOM APIs instead."),
+  rule("JS-EXEC-001", "Shell command execution", "high", /\bexec(?:Sync)?\s*\(/g, "Shell execution can become command injection when command strings contain untrusted input.", "Prefer spawn with an argument array and validate external input."),
+  rule("JS-CHILD-SHELL-001", "Shell mode enabled for child process", "high", /\bshell\s*:\s*true\b/g, "shell: true increases command-injection risk.", "Avoid shell mode unless required and input is strictly controlled."),
+  rule("JS-DANGEROUS-HTML-001", "Potential unsafe React HTML injection", "medium", /dangerouslySetInnerHTML\s*=\s*\{/g, "dangerouslySetInnerHTML bypasses React's normal HTML escaping.", "Prefer normal JSX text or sanitize HTML."),
+  rule("JS-SQL-CONCAT-001", "Potential SQL injection", "high", /\b(?:SELECT|INSERT|UPDATE|DELETE)\b[^\n;]*(?:\+|\$\{)[A-Za-z_$][\w$]*/gi, "SQL text appears to include a JavaScript value directly.", "Use parameterized queries or prepared statements."),
+  rule("JS-INSECURE-RANDOM-001", "Insecure randomness", "low", /\bMath\.random\s*\(/g, "Math.random() is not suitable for security-sensitive values.", "Use crypto.randomUUID() or cryptographically secure random bytes."),
+  rule("JS-TLS-001", "TLS certificate verification disabled", "high", /\brejectUnauthorized\s*:\s*false\b/g, "TLS certificate verification is disabled.", "Keep certificate verification enabled."),
+  rule("JS-PROTOTYPE-001", "Potential prototype pollution", "medium", /(?:\[\s*['"]__proto__['"]\s*\]|\.\s*__proto__)\s*=/g, "Direct assignment to __proto__ can modify an object's prototype.", "Avoid __proto__ assignments."),
+  rule("JS-SETTIMEOUT-001", "Dynamic code passed to timer", "medium", /\b(?:setTimeout|setInterval)\s*\(\s*['"]/g, "Passing a string to a timer evaluates it as code in browsers.", "Pass a function instead."),
+  rule("JS-REDIRECT-001", "Potential open redirect", "medium", /\b(?:location(?:\.href|\.assign|\.replace)|window\.open)\s*\([^\n;]*(?:req|request|query|params|input|url)/gi, "A user-controlled URL may be used for navigation.", "Validate URLs against an allowlist before redirecting."),
+  rule("JS-HTTP-001", "Unencrypted HTTP URL", "low", /['"]http:\/\/[^'"]+['"]/gi, "Plain HTTP does not provide transport encryption.", "Use HTTPS unless HTTP is explicitly required."),
+  rule("JS-COOKIE-001", "Cookie without security attributes", "low", /document\.cookie\s*=\s*[^;\n]+/g, "Client cookies should use appropriate security attributes where applicable.", "Prefer server-set cookies with Secure, HttpOnly and SameSite where appropriate."),
+  rule("JS-TLS-ENV-001", "TLS rejection disabled through environment", "high", /\bNODE_TLS_REJECT_UNAUTHORIZED\s*=\s*['"]?0['"]?/g, "Node.js TLS certificate verification is disabled.", "Do not disable TLS verification."),
+  rule("JS-HARDCODED-PASSWORD-001", "Possible hardcoded password", "medium", /\b(?:password|passwd|pwd)\s*[:=]\s*['"][^'"]{6,}['"]/gi, "A password-like value appears to be hardcoded.", "Load credentials from environment variables or a secret manager.")
 ];
+
+function rule(
+  id: string,
+  title: string,
+  severity: Finding["severity"],
+  regex: RegExp,
+  message: string,
+  suggestion: string
+): Rule {
+  return {
+    id,
+    title,
+    severity,
+    extensions,
+    scan({ file, content }) {
+      return find(content, file, regex, {
+        ruleId: id,
+        severity,
+        title,
+        message,
+        suggestion
+      });
+    }
+  };
+}
 
 function find(content: string, file: string, regex: RegExp, base: Omit<Finding, "file" | "line" | "column">): Finding[] {
   return [...content.matchAll(regex)].map(match => {
