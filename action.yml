@@ -1,0 +1,26 @@
+name: Fishstick
+description: Scan a repository for security vulnerabilities and bugs
+author: intensed-dev
+
+inputs:
+  fail-on:
+    description: Minimum severity that fails the workflow
+    required: false
+    default: high
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Install Fishstick
+      shell: bash
+      run: npm install --no-save --ignore-scripts
+    - name: Build Fishstick
+      shell: bash
+      run: npm run build
+    - name: Scan
+      shell: bash
+      run: node dist/cli.js scan . --fail-on "${{ inputs.fail-on }}"
